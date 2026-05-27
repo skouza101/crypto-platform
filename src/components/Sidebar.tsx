@@ -34,11 +34,11 @@ export const Sidebar: React.FC = () => {
       <div id="brand-header" className="flex items-center gap-3 mb-10 pl-2">
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#a855f7] to-[#00e5ff] flex items-center justify-center shadow-lg shadow-purple-950/40 relative group overflow-hidden">
           <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-          <span className="text-white font-black text-sm select-none tracking-wider">LB</span>
+          <span className="text-white font-black text-sm select-none tracking-wider">SK</span>
         </div>
         <div>
           <span className="font-display font-black tracking-wider text-lg text-white group-hover:text-purple-300 transition-colors uppercase">
-            Little<span className="text-[#a855f7]">bee</span>
+            Sko<span className="text-[#a855f7]">rypto</span>
           </span>
         </div>
       </div>
@@ -121,10 +121,10 @@ export const MobileNavigation: React.FC = () => {
       <header id="mobile-header" className="md:hidden flex items-center justify-between p-4 bg-[#0a0f13] border-b border-[#988d9f]/10 z-30 sticky top-0">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-md bg-gradient-to-br from-[#a855f7] to-[#00e5ff] flex items-center justify-center">
-            <span className="text-white font-[900] text-[10px]">LB</span>
+            <span className="text-white font-[900] text-[10px]">SK</span>
           </div>
           <span className="font-display font-extrabold tracking-wider text-sm text-white uppercase">
-            Little<span className="text-[#a855f7]">bee</span>
+            Sko<span className="text-[#a855f7]">rypto</span>
           </span>
         </div>
         

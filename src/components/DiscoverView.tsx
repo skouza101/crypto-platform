@@ -555,14 +555,26 @@ export const DiscoverView: React.FC = () => {
                 >
                   {/* Avatar identifier */}
                   <div className="flex items-center gap-3">
-                    <div className={`w-8.5 h-8.5 rounded-xl flex items-center justify-center text-xs font-bold leading-none select-none text-white ${
+                    <div className={`w-8.5 h-8.5 rounded-xl flex items-center justify-center text-xs font-bold leading-none select-none text-white overflow-hidden ${
                       m.symbol.includes('BTC') 
                         ? 'bg-[#f7931a]/15 text-[#f7931a]' 
                         : m.symbol.includes('ETH') 
                           ? 'bg-[#627eea]/15 text-[#627eea]' 
                           : 'bg-[#a855f7]/15 text-[#a855f7]'
                     }`}>
-                      {m.logoChar}
+                      {m.image ? (
+                        <img
+                          src={m.image}
+                          alt={`${m.name} logo`}
+                          className="w-6.5 h-6.5 rounded-full object-contain"
+                          onError={(event) => {
+                            event.currentTarget.style.display = 'none';
+                            const fallback = event.currentTarget.nextElementSibling as HTMLElement | null;
+                            if (fallback) fallback.style.display = 'inline';
+                          }}
+                        />
+                      ) : null}
+                      <span style={{ display: m.image ? 'none' : 'inline' }}>{m.logoChar}</span>
                     </div>
                     <div className="flex flex-col">
                       <span className="text-xs font-semibold text-white tracking-wide">{m.symbol}</span>

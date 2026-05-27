@@ -75,7 +75,7 @@ export const AuthOverlay: React.FC = () => {
             </div>
             <div>
               <h1 className="font-display font-black uppercase tracking-wider text-lg leading-none">
-                Little<span className="text-[#a855f7]">bee</span>
+                Sko<span className="text-[#a855f7]">rypto</span>
               </h1>
               <p className="text-[11px] text-[#dfe3e9]/45 font-mono mt-1">Persistent crypto simulator</p>
             </div>

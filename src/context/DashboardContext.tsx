@@ -13,6 +13,7 @@ export interface MarketAsset {
   change: number;
   changePercent: number;
   logoChar: string;
+  image?: string;
   type: 'crypto' | 'fiat';
   sparkline: number[];
 }
@@ -65,11 +66,31 @@ interface UserAssetRow {
   type: string;
 }
 
+interface CoinGeckoMarket {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: number;
+  price_change_24h: number | null;
+  price_change_percentage_24h: number | null;
+  sparkline_in_7d?: {
+    price?: number[];
+  };
+}
+
+interface FrankfurterLatest {
+  rates: {
+    GBP?: number;
+    CAD?: number;
+  };
+}
+
 const INITIAL_MARKETS: MarketAsset[] = [
-  { symbol: 'BTC/USDT', name: 'Bitcoin', price: 104312.73, change: -557.34, changePercent: -0.53, logoChar: 'B', type: 'crypto', sparkline: [105000, 104800, 104100, 104600, 104312] },
-  { symbol: 'ETH/USDT', name: 'Ethereum', price: 2509.44, change: -15.23, changePercent: -0.60, logoChar: 'E', type: 'crypto', sparkline: [2540, 2530, 2490, 2515, 2509.44] },
-  { symbol: 'GBP/USD', name: 'British Pound / US Dollar', price: 1.34654, change: 0.00444, changePercent: 0.33, logoChar: '£', type: 'fiat', sparkline: [1.341, 1.342, 1.345, 1.343, 1.34654] },
-  { symbol: 'CAD/USD', name: 'Canadian Dollar / US Dollar', price: 0.72966, change: -0.0012, changePercent: -0.16, logoChar: 'C', type: 'fiat', sparkline: [0.731, 0.730, 0.728, 0.730, 0.72966] },
+  { symbol: 'BTC/USDT', name: 'Bitcoin', price: 104312.73, change: -557.34, changePercent: -0.53, logoChar: 'B', image: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png', type: 'crypto', sparkline: [105000, 104800, 104100, 104600, 104312] },
+  { symbol: 'ETH/USDT', name: 'Ethereum', price: 2509.44, change: -15.23, changePercent: -0.60, logoChar: 'E', image: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png', type: 'crypto', sparkline: [2540, 2530, 2490, 2515, 2509.44] },
+  { symbol: 'GBP/USD', name: 'British Pound / US Dollar', price: 1.34654, change: 0.00444, changePercent: 0.33, logoChar: '£', image: 'https://img.icons8.com/color/48/great-britain-circular.png', type: 'fiat', sparkline: [1.341, 1.342, 1.345, 1.343, 1.34654] },
+  { symbol: 'CAD/USD', name: 'Canadian Dollar / US Dollar', price: 0.72966, change: -0.0012, changePercent: -0.16, logoChar: 'C', image: 'https://img.icons8.com/color/48/canada-circular.png', type: 'fiat', sparkline: [0.731, 0.730, 0.728, 0.730, 0.72966] },
 ];
 
 const DEFAULT_AVATAR = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAzs3_e15iV11BeB_VM3YFqTB398gpK8vTfnzTNKbZfIydZEfZGJJNDYZs-vOv_FuKptHhreR8oGSaX4qyujssbh7xJ93AxzCa5L08hZdiE45jhuxbzXr8UQVuRSeK787DwqDncse5A2_WdkEgHno2sdwgM1fj55z3C_pp2c59sJ-jALKXNXxzV3hCkKZ4-e8kHmYeksTZRSy2twJiq8saojRMWnQV7C2hj2eYu4I9HAB70JA_pe0QnXxWM62aLX98B9JiaVTVQvUrK';
@@ -82,6 +103,56 @@ const INITIAL_ASSETS: AssetBalance[] = [
   { id: 'sol', name: 'Solana', symbol: 'SOL', balance: 145.50, valueUSD: 2050.40, priceUSD: 14.09, change24h: 8.7, type: 'crypto' },
   { id: 'usd', name: 'US Dollar', symbol: 'USD', balance: 540.00, valueUSD: 540.00, priceUSD: 1.00, change24h: 0.0, type: 'fiat' }
 ];
+
+const buildCryptoMarket = (
+  symbol: string,
+  logoChar: string,
+  source: CoinGeckoMarket | undefined,
+  previous: MarketAsset | undefined
+): MarketAsset | null => {
+  if (!source && !previous) return null;
+  if (!source) return previous;
+
+  const price = Number(source.current_price.toFixed(2));
+  return {
+    symbol,
+    name: source.name,
+    price,
+    change: Number((source.price_change_24h ?? 0).toFixed(2)),
+    changePercent: Number((source.price_change_percentage_24h ?? 0).toFixed(2)),
+    logoChar,
+    image: source.image,
+    type: 'crypto',
+    sparkline: source.sparkline_in_7d?.price?.slice(-12) ?? previous?.sparkline ?? [price]
+  };
+};
+
+const buildFiatMarket = (
+  symbol: string,
+  name: string,
+  logoChar: string,
+  price: number | undefined,
+  previous: MarketAsset | undefined
+): MarketAsset | null => {
+  if (!price && !previous) return null;
+  if (!price) return previous;
+
+  const priorPrice = previous?.price ?? price;
+  const change = price - priorPrice;
+  const changePercent = priorPrice > 0 ? (change / priorPrice) * 100 : 0;
+
+  return {
+    symbol,
+    name,
+    price: Number(price.toFixed(5)),
+    change: Number(change.toFixed(5)),
+    changePercent: Number(changePercent.toFixed(2)),
+    logoChar,
+    image: previous?.image,
+    type: 'fiat',
+    sparkline: [...(previous?.sparkline.slice(-11) ?? []), price]
+  };
+};
 
 export const ECONOMIC_EVENTS: EconomicEvent[] = [
   { time: '00:00', country: 'USA', flag: '🇺🇸', title: 'PPI MoM', forecast: '-0.4%', previous: '-0.2%', impact: 'high' },
@@ -493,40 +564,88 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, []);
 
-  // Simulation effect for market assets tickers
+  // Live market prices from public market data APIs.
   useEffect(() => {
-    const interval = setInterval(() => {
-      setMarkets(prev => {
-        const updated = prev.map(m => {
-          const isUp = Math.random() > 0.45;
-          const pct = (Math.random() * 0.15 + 0.01) * (isUp ? 1 : -1);
-          const priceDiff = m.price * (pct / 100);
-          const newPrice = Math.max(0.0001, parseFloat((m.price + priceDiff).toFixed(m.type === 'crypto' ? 2 : 5)));
-          
-          setPriceFlash(curr => ({
-            ...curr,
-            [m.symbol]: isUp ? 'up' : 'down'
-          }));
+    let cancelled = false;
 
-          setTimeout(() => {
-            setPriceFlash(curr => ({
-              ...curr,
-              [m.symbol]: null
-            }));
-          }, 800);
+    const updateMarkets = async () => {
+      try {
+        const [cryptoResponse, fiatResponse] = await Promise.all([
+          fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,solana&price_change_percentage=24h&sparkline=true', {
+            headers: { accept: 'application/json' },
+            cache: 'no-store'
+          }),
+          fetch('https://api.frankfurter.app/latest?from=USD&to=GBP,CAD', {
+            headers: { accept: 'application/json' },
+            cache: 'no-store'
+          })
+        ]);
 
-          return {
-            ...m,
-            price: newPrice,
-            change: parseFloat((m.change + priceDiff).toFixed(m.type === 'crypto' ? 2 : 5)),
-            changePercent: parseFloat((m.changePercent + pct).toFixed(2))
-          };
+        if (!cryptoResponse.ok || !fiatResponse.ok) {
+          throw new Error('Market data provider returned an error.');
+        }
+
+        const cryptoData = await cryptoResponse.json() as CoinGeckoMarket[];
+        const fiatData = await fiatResponse.json() as FrankfurterLatest;
+        if (cancelled) return;
+
+        setMarkets(prev => {
+          const previousBySymbol = new Map(prev.map(item => [item.symbol, item]));
+          const cryptoById = new Map(cryptoData.map(item => [item.id, item]));
+          const bitcoin = cryptoById.get('bitcoin');
+          const ethereum = cryptoById.get('ethereum');
+          const solana = cryptoById.get('solana');
+          const gbpUsd = fiatData.rates.GBP ? 1 / fiatData.rates.GBP : previousBySymbol.get('GBP/USD')?.price;
+          const cadUsd = fiatData.rates.CAD ? 1 / fiatData.rates.CAD : previousBySymbol.get('CAD/USD')?.price;
+
+          const nextMarkets: MarketAsset[] = [
+            buildCryptoMarket('BTC/USDT', 'B', bitcoin, previousBySymbol.get('BTC/USDT')),
+            buildCryptoMarket('ETH/USDT', 'E', ethereum, previousBySymbol.get('ETH/USDT')),
+            buildFiatMarket('GBP/USD', 'British Pound / US Dollar', '£', gbpUsd, previousBySymbol.get('GBP/USD')),
+            buildFiatMarket('CAD/USD', 'Canadian Dollar / US Dollar', 'C', cadUsd, previousBySymbol.get('CAD/USD')),
+            buildCryptoMarket('SOL/USDT', 'S', solana, previousBySymbol.get('SOL/USDT'))
+          ].filter((item): item is MarketAsset => Boolean(item));
+
+          const nextFlash: { [key: string]: 'up' | 'down' | null } = {};
+          nextMarkets.forEach(item => {
+            const previous = previousBySymbol.get(item.symbol);
+            if (previous && previous.price !== item.price) {
+              nextFlash[item.symbol] = item.price > previous.price ? 'up' : 'down';
+            }
+          });
+
+          if (Object.keys(nextFlash).length > 0) {
+            setPriceFlash(curr => ({ ...curr, ...nextFlash }));
+            window.setTimeout(() => {
+              setPriceFlash(curr => {
+                const cleared = { ...curr };
+                Object.keys(nextFlash).forEach(symbol => {
+                  cleared[symbol] = null;
+                });
+                return cleared;
+              });
+            }, 900);
+          }
+
+          return nextMarkets;
         });
-        return updated;
-      });
-    }, 4500);
+      } catch (error) {
+        if (!cancelled) {
+          setNotifications(prev => [
+            `Market data refresh failed: ${error instanceof Error ? error.message : 'Unknown provider error'}`,
+            ...prev.slice(0, 5)
+          ]);
+        }
+      }
+    };
 
-    return () => clearInterval(interval);
+    void updateMarkets();
+    const interval = window.setInterval(updateMarkets, 30000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
   }, []);
 
   // Live Position Size Calculation
