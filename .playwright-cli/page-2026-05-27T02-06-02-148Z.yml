@@ -1,0 +1,26 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e7]:
+        - img [ref=e9]
+        - generic [ref=e12]:
+          - heading "Skorypto" [level=1] [ref=e13]
+          - paragraph [ref=e14]: Persistent crypto simulator
+      - generic [ref=e16]:
+        - button "Sign In" [ref=e18]
+        - button "Create Account" [ref=e19]
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Email
+          - generic [ref=e23]:
+            - img [ref=e25]
+            - textbox "Email" [ref=e28]
+        - generic [ref=e29]:
+          - generic [ref=e30]: Password
+          - generic [ref=e31]:
+            - img [ref=e33]
+            - textbox "Password" [ref=e36]
+        - button "Sign In" [ref=e37]:
+          - text: Sign In
+          - img [ref=e38]
+  - alert [ref=e40]

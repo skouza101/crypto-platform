@@ -22,7 +22,7 @@ export const AuthOverlay: React.FC = () => {
   const submitAuth = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!supabase) {
-      setAlert({ type: 'error', message: 'Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to enable authentication.' });
+      setAlert({ type: 'error', message: 'Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in Vercel, then redeploy.' });
       return;
     }
 
@@ -107,7 +107,7 @@ export const AuthOverlay: React.FC = () => {
 
         {!isSupabaseConfigured && (
           <div className="mb-5 rounded-xl border border-[#ffb4ab]/20 bg-[#ffb4ab]/10 p-3 text-xs text-[#ffd8d3] leading-relaxed">
-            Supabase env vars are missing. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`, then restart the dev server.
+            Supabase env vars are missing. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in Vercel, then redeploy.
           </div>
         )}
 

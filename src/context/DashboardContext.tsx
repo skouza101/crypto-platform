@@ -86,6 +86,11 @@ interface FrankfurterLatest {
   };
 }
 
+interface MarketsApiResponse {
+  crypto: CoinGeckoMarket[];
+  fiat: FrankfurterLatest;
+}
+
 const INITIAL_MARKETS: MarketAsset[] = [
   { symbol: 'BTC/USDT', name: 'Bitcoin', price: 104312.73, change: -557.34, changePercent: -0.53, logoChar: 'B', image: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png', type: 'crypto', sparkline: [105000, 104800, 104100, 104600, 104312] },
   { symbol: 'ETH/USDT', name: 'Ethereum', price: 2509.44, change: -15.23, changePercent: -0.60, logoChar: 'E', image: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png', type: 'crypto', sparkline: [2540, 2530, 2490, 2515, 2509.44] },
@@ -570,23 +575,16 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const updateMarkets = async () => {
       try {
-        const [cryptoResponse, fiatResponse] = await Promise.all([
-          fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,solana&price_change_percentage=24h&sparkline=true', {
-            headers: { accept: 'application/json' },
-            cache: 'no-store'
-          }),
-          fetch('https://api.frankfurter.app/latest?from=USD&to=GBP,CAD', {
-            headers: { accept: 'application/json' },
-            cache: 'no-store'
-          })
-        ]);
+        const marketResponse = await fetch('/api/markets', {
+          headers: { accept: 'application/json' },
+          cache: 'no-store'
+        });
 
-        if (!cryptoResponse.ok || !fiatResponse.ok) {
+        if (!marketResponse.ok) {
           throw new Error('Market data provider returned an error.');
         }
 
-        const cryptoData = await cryptoResponse.json() as CoinGeckoMarket[];
-        const fiatData = await fiatResponse.json() as FrankfurterLatest;
+        const { crypto: cryptoData, fiat: fiatData } = await marketResponse.json() as MarketsApiResponse;
         if (cancelled) return;
 
         setMarkets(prev => {
