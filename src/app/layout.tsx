@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: 'Skorypto - Crypto Trading & Analytics',
   description: 'High-performance Web3 crypto-future trading dashboard, blending professional-grade financial tooling with a futuristic electric glassmorphism aesthetic.',
   icons: {
-    icon: '/favicon.svg',
+    icon: '/skorypto-logo.png',
   },
 };
 
